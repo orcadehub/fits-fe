@@ -1,0 +1,72 @@
+/* General Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+/* Header Container */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100px;
+  padding: 10px 20px;
+  background-color: #fff; /* Dark background color */
+  color: #000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Left Side: Logo and Brand Name */
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  width: 200px; /* Logo size */
+  height: 150px;
+  margin-right: 10px;
+  border-radius: 30%;
+}
+
+.brand-name {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+/* Right Side: Navigation Menu */
+.header-right .menu {
+  display: flex;
+  list-style: none;
+}
+
+.menu li {
+  margin-left: 20px;
+}
+
+.menu a {
+  text-decoration: none;
+  color: #000;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+}
+
+.menu a:hover {
+  color: #00bcd4; /* Highlight color on hover */
+}
+.logout-button {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 0 8px;
+  /* border-radius: 4px; */
+  height: 28px;
+  width: 80px;
+  cursor: pointer;
+}
+
+.logout-button:hover {
+  background-color: #e60000;
+}

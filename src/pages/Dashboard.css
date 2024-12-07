@@ -1,0 +1,52 @@
+/* Custom Styles for Dashboard */
+.container {
+    max-width: 1200px;
+  }
+  
+  .card {
+    border-radius: 15px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  h2 {
+    color: #007bff;
+  }
+  
+  h4 {
+    color: #343a40;
+    margin-bottom: 15px;
+  }
+  
+  .user-details p {
+    font-size: 1.1rem;
+    margin: 5px 0;
+  }
+  
+  .table th, .table td {
+    text-align: center;
+    vertical-align: middle;
+  }
+  
+  .table-bordered {
+    border: 2px solid #020303;
+  }
+  
+  .table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f8f9fa;
+  }
+  
+  .thead-dark th {
+    background-color: #343a40;
+    color: #ffffff;
+  }
+  
+  .btn-primary {
+    background-color: #007bff;
+    border: none;
+  }
+  
+  .table th {
+    background-color: #057aee;
+    font-weight: bold;
+  }
+  
