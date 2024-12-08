@@ -11,28 +11,28 @@ const Portfolio = () => {
       description:
         "A real-time seizure safety monitoring system with alerts for caregivers and family members.",
       link: "https://test.com",
-      image: Port1,
+      image: Port4,
     },
     {
       title: "Personalized Diet & Exercise Plans",
       description:
         "An AI-powered platform that provides personalized diet and exercise plans to help manage seizures.",
       link: "https://test.com",
-      image: Port2,
+      image: Port3,
     },
     {
       title: "Seizure Detection Handband",
       description:
         "A wearable handband that detects seizure activity in real-time and sends alerts to caregivers.",
       link: "https://test.com",
-      image: Port3,
+      image: Port1,
     },
     {
       title: "Seizure Prediction Algorithm",
       description:
         "An AI-based algorithm that predicts potential seizure events by analyzing user data.",
       link: "https://test.com",
-      image: Port4,
+      image: Port2,
     },
   ];
 
