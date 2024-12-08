@@ -44,7 +44,7 @@ const Login = () => {
       if (user.isNewUser) {
         navigate("/onboard");
       } else {
-        navigate("/home");
+        navigate("/dashboard");
       }
     } catch (err) {
       toast.error(err.response?.data?.error || "Something went wrong.");

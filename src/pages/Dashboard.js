@@ -2,13 +2,33 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import config from "../config"; // Your config for API base URL
-import "bootstrap/dist/css/bootstrap.min.css"; // Bootstrap CSS for styling
-import "./Dashboard.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { Bar } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 import { useNavigate } from "react-router-dom";
+import "./Dashboard.css";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const Dashboard = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [completedDays, setCompletedDays] = useState([]);
   const navigate = useNavigate();
 
   const baseURL =
@@ -26,11 +46,15 @@ const Dashboard = () => {
           return;
         }
         const userId = user._id;
-        debugger;
+
         const response = await axios.post(`${baseURL}/user-details`, {
           userId,
         });
         setUserData(response.data);
+        setCompletedDays(response.data.completedDays || []);
+        console.log("Completed Days:", completedDays);
+        console.log("Item Day:", userData);
+        debugger
       } catch (error) {
         console.error("Error fetching user data:", error);
         toast.error("Failed to load user data.");
@@ -40,7 +64,59 @@ const Dashboard = () => {
     };
 
     fetchUserData();
-  }, [baseURL]);
+  }, [baseURL, navigate]);
+
+  const handleMarkCompleted = async (day) => {
+    const confirmation = window.prompt(
+      `Type "COMPLETED" to mark Day ${day} as completed.`
+    );
+    if (confirmation === "COMPLETED") {
+      try {
+        debugger;
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user) {
+          toast.error("User ID not found. Please log in again.");
+          navigate("/login");
+          return;
+        }
+        const userId = user._id;
+        const response = await axios.post(`${baseURL}/mark-completed`, {
+          userId,
+          day,
+        });
+
+        if (response.data.success) {
+          setCompletedDays(response.data.completedDays);
+          toast.success(`Day ${day} marked as completed!`);
+        } else {
+          toast.error("Failed to update schedule. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error updating completion:", error);
+        toast.error("An error occurred. Please try again.");
+      }
+    } else {
+      toast.warning("You must type 'COMPLETED' to confirm.");
+    }
+  };
+
+  // Data for Bar Graph
+  const graphData = {
+    labels: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7"],
+    datasets: [
+      {
+        label: "Completion Percentage",
+        data: userData
+          ? userData.foodAndExercise.map((item) =>
+              completedDays.includes(item.day) ? 100 : 0
+            )
+          : [],
+        backgroundColor: "#28a745",
+      },
+    ],
+  };
+
+  const seizureRisk = Math.max(0, 100 - completedDays.length * 10);
 
   if (loading) {
     return <div className="text-center">Loading...</div>;
@@ -79,6 +155,7 @@ const Dashboard = () => {
               <th>Dinner</th>
               <th>Morning Exercise</th>
               <th>Evening Exercise</th>
+              <th>Completed</th>
             </tr>
           </thead>
           <tbody>
@@ -90,10 +167,36 @@ const Dashboard = () => {
                 <td>{item.dinner}</td>
                 <td>{item.morningExercise}</td>
                 <td>{item.eveningExercise}</td>
+                <td>
+                  {completedDays.includes(item.day) ? (
+                    <span className="text-success">Completed</span>
+                  ) : (
+                    <button
+                      className="btn btn-sm btn-success"
+                      onClick={() => handleMarkCompleted(item.day)}
+                    >
+                      Mark as Completed
+                    </button>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
+
+        {/* Graph Section */}
+        <div className="mt-5">
+          <h4>Schedule Adherence Graph</h4>
+          <Bar data={graphData} options={{ responsive: true }} />
+        </div>
+
+        {/* Seizure Risk Percentage */}
+        <div className="mt-4 text-center">
+          <h5>
+            Based on your adherence, the seizure risk is estimated at{" "}
+            <span className="text-danger">{seizureRisk}%</span>.
+          </h5>
+        </div>
       </div>
     </div>
   );
