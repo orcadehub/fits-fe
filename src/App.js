@@ -19,6 +19,7 @@ import About from "./pages/About";
 import Service from "./pages/Service";
 import Portfolio from "./pages/Portfolio";
 import Contact from "./pages/Contact";
+import Footer from "./pages/Footer";
 
 const App = () => {
   return (
@@ -64,6 +65,7 @@ const MainApp = () => {
         <Route path="/portfolio" element={<Portfolio />} />
         <Route path="/contact" element={<Contact />} />
       </Routes>
+      <Footer/>
     </>
   );
 };

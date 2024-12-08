@@ -9,6 +9,9 @@
 /* Header Container */
 .header {
   display: flex;
+  position: sticky;
+  top: 0%;
+  z-index: 12;
   justify-content: space-between;
   align-items: center;
   height: 100px;
