@@ -1,31 +1,63 @@
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
+import { toast } from "react-toastify";
 import { Line } from "react-chartjs-2";
 import config from "../config"; // Your config for API base URL
+import { useNavigate } from "react-router-dom";
+
 // WebSocket connection
 const baseURL =
-process.env.NODE_ENV === "development"
-  ? config.LOCAL_BASE_URL.replace(/\/$/, "")
-  : config.BASE_URL.replace(/\/$/, "");
+  process.env.NODE_ENV === "development"
+    ? config.LOCAL_BASE_URL.replace(/\/$/, "")
+    : config.BASE_URL.replace(/\/$/, "");
 
 const socket = io(`${baseURL}`);
 
 const Detection = () => {
+    const navigate=useNavigate()
   const [detectionHistory, setDetectionHistory] = useState([]);
+  const [userId, setUserId] = useState("");
 
   useEffect(() => {
-    // Fetch initial detections
-    fetch(`${baseURL}/detections`)
-      .then((res) => res.json())
-      .then((data) => setDetectionHistory(data))
-      .catch((err) => console.error("Error fetching data:", err));
+    // Get userId from localStorage
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) {
+      toast.error("User ID not found. Please log in again.");
+      navigate("/login");
+      return;
+    }
+    const userId = user._id;
+    setUserId(userId);
 
-    // Listen for new detections
+    // Function to fetch the latest detections for the user
+    const fetchDetections = () => {
+      fetch(`${baseURL}/detections/${userId}`)
+        .then((res) => res.json())
+        .then((data) => setDetectionHistory(data))
+        .catch((err) => console.error("Error fetching data:", err));
+    };
+
+    // Fetch data initially
+    fetchDetections();
+
+    // Fetch data every 500 milliseconds
+    const interval = setInterval(() => {
+      fetchDetections();
+    }, 500); // Adjust the interval time here (e.g., 500ms)
+
+    // Join the WebSocket room for the user
+    socket.emit("joinUserRoom", userId);
+
+    // Listen for new detections via WebSocket
     socket.on("newDetectionUpdate", (data) => {
       setDetectionHistory((prev) => [data, ...prev.slice(0, 99)]); // Keep the latest 100 records
     });
 
-    return () => socket.off("newDetectionUpdate");
+    // Cleanup
+    return () => {
+      clearInterval(interval); // Stop the interval when component unmounts
+      socket.off("newDetectionUpdate");
+    };
   }, []);
 
   // Prepare chart data
@@ -52,8 +84,8 @@ const Detection = () => {
       <h2>Recent Values</h2>
       {detectionHistory.slice(0, 5).map((item, index) => (
         <p key={index}>
-          EEG: {item.eegValue} | Seizure: {item.seizureDetected ? "Yes" : "No"} |{" "}
-          {new Date(item.timestamp).toLocaleTimeString()}
+          EEG: {item.eegValue} | Seizure: {item.seizureDetected ? "Yes" : "No"}{" "}
+          | {new Date(item.timestamp).toLocaleTimeString()}
         </p>
       ))}
     </div>
