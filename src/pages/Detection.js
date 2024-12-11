@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
+import config from "../config"; // Your config for API base URL
+const baseURL =
+process.env.NODE_ENV === "development"
+? config.LOCAL_BASE_URL.replace(/\/$/, "")
+: config.BASE_URL.replace(/\/$/, "");
 
-const socket = io("http://localhost:3300"); // Backend server URL
+const socket = io(`${baseURL}`); // Backend server URL
 
 const Detection = () => {
   const [detectionData, setDetectionData] = useState(null);
@@ -21,7 +26,8 @@ const Detection = () => {
       {detectionData ? (
         <div style={styles.card}>
           <p style={styles.dataLine}>
-            <span style={styles.label}>EEG Value:</span> {detectionData.eegValue}
+            <span style={styles.label}>EEG Value:</span>{" "}
+            {detectionData.eegValue}
           </p>
           <p style={styles.dataLine}>
             <span style={styles.label}>Seizure Detected:</span>{" "}
