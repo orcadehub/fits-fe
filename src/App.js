@@ -20,6 +20,7 @@ import Service from "./pages/Service";
 import Portfolio from "./pages/Portfolio";
 import Contact from "./pages/Contact";
 import Footer from "./pages/Footer";
+import Detection from "./pages/Detection";
 
 const App = () => {
   return (
@@ -64,6 +65,7 @@ const MainApp = () => {
         <Route path="/services" element={<Service />} />
         <Route path="/portfolio" element={<Portfolio />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/detection" element={<Detection />} />
       </Routes>
       <Footer/>
     </>

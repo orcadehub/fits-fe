@@ -1,7 +1,9 @@
 import React from "react";
 import "./Service.css"; // Import the CSS file for styling
+import { useNavigate } from "react-router-dom";
 
 const Service = () => {
+  const navigate=useNavigate()
   const services = [
     {
       title: "Seizure Safety Monitoring",
@@ -16,7 +18,7 @@ const Service = () => {
       icon: "🍎",
     },
     {
-      title: "Seizure Detection Handband",
+      title: "Seizure Detection Capband",
       description:
         "Our wearable Cap  is equipped with advanced sensors that detect seizure activity in real-time. The device alerts caregivers or family members through the app, ensuring immediate assistance.",
       icon: "🧢",
@@ -47,12 +49,16 @@ const Service = () => {
     },
   ];
 
+  const handleClick=()=>{
+    navigate('/detection')
+  }
+
   return (
     <div className="services-container">
       <h1 className="services-heading">Seizure Safety Services</h1>
       <div className="services-list">
         {services.map((service, index) => (
-          <div key={index} className="service-card">
+          <div key={index} className="service-card" onClick={handleClick}>
             <div className="service-icon">{service.icon}</div>
             <h3 className="service-title">{service.title}</h3>
             <p className="service-description">{service.description}</p>
