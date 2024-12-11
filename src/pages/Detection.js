@@ -1,98 +1,112 @@
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
-import config from "../config"; // Your config for API base URL
-const baseURL =
-process.env.NODE_ENV === "development"
-? config.LOCAL_BASE_URL.replace(/\/$/, "")
-: config.BASE_URL.replace(/\/$/, "");
-console.log(baseURL)
-const socket = io(`${baseURL}`); // Backend server URL
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  LinearScale,
+  CategoryScale,
+  PointElement,
+  LineElement,
+} from "chart.js";
+
+// Register chart components
+ChartJS.register(Title, Tooltip, Legend, LinearScale, CategoryScale, PointElement, LineElement);
+
+// WebSocket connection
+const socket = io(
+  process.env.NODE_ENV === "development"
+    ? "http://localhost:3300"
+    : "https://your-deployed-backend-url.com"
+);
 
 const Detection = () => {
-  const [detectionData, setDetectionData] = useState(null);
+  const [detectionHistory, setDetectionHistory] = useState([]);
 
   useEffect(() => {
-    socket.on("detectionUpdate", (data) => {
+    // Listen for updates from the server
+    socket.on("detectionHistoryUpdate", (data) => {
       console.log("Received data:", data);
-      setDetectionData(data);
+      setDetectionHistory(data);
     });
 
-    return () => socket.off("detectionUpdate");
+    // Cleanup on component unmount
+    return () => socket.off("detectionHistoryUpdate");
   }, []);
 
+  // Get the most recent detection
+  const latestDetection =
+    detectionHistory.length > 0 ? detectionHistory[detectionHistory.length - 1] : null;
+
+  // Prepare chart data
+  const data = {
+    labels: detectionHistory.map((detection) =>
+      new Date(detection.timestamp).toLocaleTimeString()
+    ),
+    datasets: [
+      {
+        label: "EEG Values",
+        data: detectionHistory.map((detection) => detection.eegValue),
+        borderColor: "rgba(75,192,192,1)",
+        backgroundColor: "rgba(75,192,192,0.2)",
+        borderWidth: 2,
+        tension: 0.4,
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: { display: true },
+    },
+    scales: {
+      x: { title: { display: true, text: "Time" } },
+      y: { title: { display: true, text: "EEG Value" }, beginAtZero: true },
+    },
+  };
+
   return (
-    <div style={styles.container}>
-      <h1 style={styles.heading}>Seizure Detection</h1>
-      {detectionData ? (
-        <div style={styles.card}>
-          <p style={styles.dataLine}>
-            <span style={styles.label}>EEG Value:</span>{" "}
-            {detectionData.eegValue}
+    <div style={{ width: "80%", margin: "50px auto" }}>
+      <h1 style={{ textAlign: "center" }}>Seizure Detection Graph</h1>
+
+      {/* Display the latest values */}
+      {latestDetection && (
+        <div
+          style={{
+            textAlign: "center",
+            marginBottom: "20px",
+            padding: "10px",
+            border: "1px solid #ddd",
+            borderRadius: "5px",
+            backgroundColor: "#f9f9f9",
+          }}
+        >
+          <h2>Latest Detection</h2>
+          <p>
+            <strong>EEG Value:</strong> {latestDetection.eegValue}
           </p>
-          <p style={styles.dataLine}>
-            <span style={styles.label}>Seizure Detected:</span>{" "}
-            {detectionData.seizureDetected ? (
-              <span style={styles.seizureYes}>Yes</span>
-            ) : (
-              <span style={styles.seizureNo}>No</span>
-            )}
+          <p>
+            <strong>Seizure Detected:</strong>{" "}
+            {latestDetection.seizureDetected ? "Yes" : "No"}
           </p>
-          <p style={styles.dataLine}>
-            <span style={styles.label}>Timestamp:</span>{" "}
-            {new Date(detectionData.timestamp).toLocaleString()}
+          <p>
+            <strong>Timestamp:</strong>{" "}
+            {new Date(latestDetection.timestamp).toLocaleString()}
           </p>
         </div>
+      )}
+
+      {/* Line chart */}
+      {detectionHistory.length > 0 ? (
+        <Line data={data} options={options} />
       ) : (
-        <p style={styles.waitingText}>Waiting for data...</p>
+        <p style={{ textAlign: "center" }}>Waiting for detection data...</p>
       )}
     </div>
   );
-};
-
-// Inline Styles Object
-const styles = {
-  container: {
-    maxWidth: "600px",
-    margin: "40px auto",
-    padding: "20px",
-    textAlign: "center",
-    fontFamily: "'Arial', sans-serif",
-    backgroundColor: "#f9f9f9",
-    borderRadius: "10px",
-    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-  },
-  heading: {
-    color: "#333",
-    marginBottom: "20px",
-  },
-  card: {
-    padding: "15px",
-    backgroundColor: "#fff",
-    borderRadius: "8px",
-    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-    textAlign: "left",
-  },
-  dataLine: {
-    fontSize: "16px",
-    margin: "10px 0",
-    color: "#555",
-  },
-  label: {
-    fontWeight: "bold",
-    color: "#333",
-  },
-  seizureYes: {
-    color: "#d9534f", // Red color for "Yes"
-    fontWeight: "bold",
-  },
-  seizureNo: {
-    color: "#5cb85c", // Green color for "No"
-    fontWeight: "bold",
-  },
-  waitingText: {
-    fontSize: "18px",
-    color: "#777",
-  },
 };
 
 export default Detection;
