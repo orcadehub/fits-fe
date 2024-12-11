@@ -102,7 +102,7 @@ const Dashboard = () => {
 
   // Data for Bar Graph
   const graphData = {
-    labels: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7"],
+    labels: Array.from({ length: 60 }, (_, i) => `Day ${i + 1}`), // 60 days for 2 months
     datasets: [
       {
         label: "Completion Percentage",
@@ -115,8 +115,9 @@ const Dashboard = () => {
       },
     ],
   };
+  
 
-  const seizureRisk = Math.max(0, 100 - completedDays.length * 10);
+  const seizureRisk = Math.max(0, 100 - completedDays.length * 1.66);
 
   if (loading) {
     return <div className="text-center">Loading...</div>;
