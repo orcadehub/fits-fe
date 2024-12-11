@@ -1,110 +1,61 @@
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
 import { Line } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  Title,
-  Tooltip,
-  Legend,
-  LinearScale,
-  CategoryScale,
-  PointElement,
-  LineElement,
-} from "chart.js";
-
-// Register chart components
-ChartJS.register(Title, Tooltip, Legend, LinearScale, CategoryScale, PointElement, LineElement);
-
+import config from "../config"; // Your config for API base URL
 // WebSocket connection
-const socket = io(
-  process.env.NODE_ENV === "development"
-    ? "http://localhost:3300"
-    : "https://your-deployed-backend-url.com"
-);
+const baseURL =
+process.env.NODE_ENV === "development"
+  ? config.LOCAL_BASE_URL.replace(/\/$/, "")
+  : config.BASE_URL.replace(/\/$/, "");
+
+const socket = io(`${baseURL}`);
 
 const Detection = () => {
   const [detectionHistory, setDetectionHistory] = useState([]);
 
   useEffect(() => {
-    // Listen for updates from the server
-    socket.on("detectionHistoryUpdate", (data) => {
-      console.log("Received data:", data);
-      setDetectionHistory(data);
+    // Fetch initial detections
+    fetch(`${baseURL}/detections`)
+      .then((res) => res.json())
+      .then((data) => setDetectionHistory(data))
+      .catch((err) => console.error("Error fetching data:", err));
+
+    // Listen for new detections
+    socket.on("newDetectionUpdate", (data) => {
+      setDetectionHistory((prev) => [data, ...prev.slice(0, 99)]); // Keep the latest 100 records
     });
 
-    // Cleanup on component unmount
-    return () => socket.off("detectionHistoryUpdate");
+    return () => socket.off("newDetectionUpdate");
   }, []);
-
-  // Get the most recent detection
-  const latestDetection =
-    detectionHistory.length > 0 ? detectionHistory[detectionHistory.length - 1] : null;
 
   // Prepare chart data
   const data = {
-    labels: detectionHistory.map((detection) =>
-      new Date(detection.timestamp).toLocaleTimeString()
-    ),
+    labels: detectionHistory
+      .slice()
+      .reverse()
+      .map((d) => new Date(d.timestamp).toLocaleTimeString()),
     datasets: [
       {
         label: "EEG Values",
-        data: detectionHistory.map((detection) => detection.eegValue),
+        data: detectionHistory.map((d) => d.eegValue).reverse(),
         borderColor: "rgba(75,192,192,1)",
         backgroundColor: "rgba(75,192,192,0.2)",
-        borderWidth: 2,
         tension: 0.4,
       },
     ],
   };
 
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: { display: true },
-    },
-    scales: {
-      x: { title: { display: true, text: "Time" } },
-      y: { title: { display: true, text: "EEG Value" }, beginAtZero: true },
-    },
-  };
-
   return (
     <div style={{ width: "80%", margin: "50px auto" }}>
-      <h1 style={{ textAlign: "center" }}>Seizure Detection Graph</h1>
-
-      {/* Display the latest values */}
-      {latestDetection && (
-        <div
-          style={{
-            textAlign: "center",
-            marginBottom: "20px",
-            padding: "10px",
-            border: "1px solid #ddd",
-            borderRadius: "5px",
-            backgroundColor: "#f9f9f9",
-          }}
-        >
-          <h2>Latest Detection</h2>
-          <p>
-            <strong>EEG Value:</strong> {latestDetection.eegValue}
-          </p>
-          <p>
-            <strong>Seizure Detected:</strong>{" "}
-            {latestDetection.seizureDetected ? "Yes" : "No"}
-          </p>
-          <p>
-            <strong>Timestamp:</strong>{" "}
-            {new Date(latestDetection.timestamp).toLocaleString()}
-          </p>
-        </div>
-      )}
-
-      {/* Line chart */}
-      {detectionHistory.length > 0 ? (
-        <Line data={data} options={options} />
-      ) : (
-        <p style={{ textAlign: "center" }}>Waiting for detection data...</p>
-      )}
+      <h1>Seizure Detection Graph</h1>
+      <Line data={data} />
+      <h2>Recent Values</h2>
+      {detectionHistory.slice(0, 5).map((item, index) => (
+        <p key={index}>
+          EEG: {item.eegValue} | Seizure: {item.seizureDetected ? "Yes" : "No"} |{" "}
+          {new Date(item.timestamp).toLocaleTimeString()}
+        </p>
+      ))}
     </div>
   );
 };
