@@ -18,8 +18,8 @@ const Service = () => {
     {
       title: "Seizure Detection Handband",
       description:
-        "Our wearable handband is equipped with advanced sensors that detect seizure activity in real-time. The device alerts caregivers or family members through the app, ensuring immediate assistance.",
-      icon: "⌚",
+        "Our wearable Cap  is equipped with advanced sensors that detect seizure activity in real-time. The device alerts caregivers or family members through the app, ensuring immediate assistance.",
+      icon: "🧢",
     },
     {
       title: "Seizure Detection Devices",

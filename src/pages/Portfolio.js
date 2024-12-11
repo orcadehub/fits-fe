@@ -21,9 +21,9 @@ const Portfolio = () => {
       image: Port3,
     },
     {
-      title: "Seizure Detection Handband",
+      title: "Seizure Detection CapBands",
       description:
-        "A wearable handband that detects seizure activity in real-time and sends alerts to caregivers.",
+        "A wearable cap band that detects seizure activity in real-time and sends alerts to caregivers.",
       link: "https://test.com",
       image: Port1,
     },
