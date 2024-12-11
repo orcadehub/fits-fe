@@ -14,24 +14,24 @@ const baseURL =
 const socket = io(`${baseURL}`);
 
 const Detection = () => {
-    const navigate=useNavigate()
+  const navigate = useNavigate();
   const [detectionHistory, setDetectionHistory] = useState([]);
-  const [userId, setUserId] = useState("");
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
-    // Get userId from localStorage
+    // Get email from localStorage
     const user = JSON.parse(localStorage.getItem("user"));
-    if (!user) {
-      toast.error("User ID not found. Please log in again.");
+    if (!user || !user.email) {
+      toast.error("Email not found. Please log in again.");
       navigate("/login");
       return;
     }
-    const userId = user._id;
-    setUserId(userId);
+    const userEmail = user.email;
+    setEmail(userEmail);
 
     // Function to fetch the latest detections for the user
     const fetchDetections = () => {
-      fetch(`${baseURL}/detections/${userId}`)
+      fetch(`${baseURL}/detections/${userEmail}`)
         .then((res) => res.json())
         .then((data) => setDetectionHistory(data))
         .catch((err) => console.error("Error fetching data:", err));
@@ -46,7 +46,7 @@ const Detection = () => {
     }, 500); // Adjust the interval time here (e.g., 500ms)
 
     // Join the WebSocket room for the user
-    socket.emit("joinUserRoom", userId);
+    socket.emit("joinUserRoom", userEmail);
 
     // Listen for new detections via WebSocket
     socket.on("newDetectionUpdate", (data) => {
