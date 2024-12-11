@@ -50,11 +50,20 @@ const Dashboard = () => {
         const response = await axios.post(`${baseURL}/user-details`, {
           userId,
         });
+
+        // Update the userData state
         setUserData(response.data);
+
+        // Update completedDays
         setCompletedDays(response.data.completedDays || []);
-        console.log("Completed Days:", completedDays);
-        console.log("Item Day:", userData);
-        debugger
+
+        // Update local storage with the latest user data
+        const updatedUser = {
+          ...user,
+          completedDays: response.data.completedDays,
+          foodAndExercise: response.data.foodAndExercise,
+        };
+        localStorage.setItem("user", JSON.stringify(updatedUser));
       } catch (error) {
         console.error("Error fetching user data:", error);
         toast.error("Failed to load user data.");
@@ -62,7 +71,6 @@ const Dashboard = () => {
         setLoading(false);
       }
     };
-
     fetchUserData();
   }, [baseURL, navigate]);
 
@@ -100,22 +108,22 @@ const Dashboard = () => {
     }
   };
 
-  // Data for Bar Graph
+  const totalDays = 60; // Total graph days (2 months)
+  const completedSet = new Set(completedDays); // Use Set for quick lookup
+
   const graphData = {
-    labels: Array.from({ length: 60 }, (_, i) => `Day ${i + 1}`), // 60 days for 2 months
+    labels: Array.from({ length: totalDays }, (_, i) => `Day ${i + 1}`), // Day 1 to Day 60
     datasets: [
       {
         label: "Completion Percentage",
-        data: userData
-          ? userData.foodAndExercise.map((item) =>
-              completedDays.includes(item.day) ? 100 : 0
-            )
-          : [],
+        data: Array.from(
+          { length: totalDays },
+          (_, i) => (completedSet.has(i + 1) ? 100 : 0) // Mark 100% for completed days
+        ),
         backgroundColor: "#28a745",
       },
     ],
   };
-  
 
   const seizureRisk = Math.max(0, 100 - completedDays.length * 1.66);
 
@@ -126,6 +134,7 @@ const Dashboard = () => {
   if (!userData) {
     return <div>No user data available</div>;
   }
+  const currentWeek = Math.floor(completedDays.length / 7) + 1;
 
   return (
     <div className="container mt-5">
@@ -146,7 +155,9 @@ const Dashboard = () => {
         </div>
 
         {/* Food and Exercise Plan Table */}
-        <h4 className="mt-4 mb-3">Your 7-Day Food and Exercise Plan</h4>
+        <h4 className="mt-4 mb-3">
+          Your 7-Day Food and Exercise Plan Week-{currentWeek}
+        </h4>
         <table className="table table-bordered table-striped">
           <thead className="thead-dark">
             <tr>
