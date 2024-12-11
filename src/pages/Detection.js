@@ -5,7 +5,7 @@ const baseURL =
 process.env.NODE_ENV === "development"
 ? config.LOCAL_BASE_URL.replace(/\/$/, "")
 : config.BASE_URL.replace(/\/$/, "");
-
+console.log(baseURL)
 const socket = io(`${baseURL}`); // Backend server URL
 
 const Detection = () => {
