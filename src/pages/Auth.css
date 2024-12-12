@@ -1,9 +1,21 @@
 /* Auth.css */
-.auth-container {
+.auth-container1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 150vh;
+    /* position: relative; */
+    background-color: #f4f4f4;
+    background-image: url('../assets/bg.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+  .auth-container {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
+    /* position: relative; */
     background-color: #f4f4f4;
     background-image: url('../assets/bg.jpg');
     background-repeat: no-repeat;

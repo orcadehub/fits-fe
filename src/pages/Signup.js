@@ -14,15 +14,26 @@ const Signup = () => {
       : config.BASE_URL.replace(/\/$/, "");
 
   console.log(baseURL);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     password: "",
     confirmPassword: "",
+    guardian1Email: "",
+    guardian2Email: "",
   });
 
-  const { name, email, phone, password, confirmPassword } = formData;
+  const {
+    name,
+    email,
+    phone,
+    password,
+    confirmPassword,
+    guardian1Email,
+    guardian2Email,
+  } = formData;
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -31,13 +42,21 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name || !email || !phone || !password || !confirmPassword) {
+    if (
+      !name ||
+      !email ||
+      !phone ||
+      !password ||
+      !confirmPassword ||
+      !guardian1Email ||
+      !guardian2Email
+    ) {
       toast.warn("Please fill in all fields.");
       return;
     }
 
     if (password !== confirmPassword) {
-      toast.warn("Password do not match.");
+      toast.warn("Passwords do not match.");
       return;
     }
 
@@ -52,7 +71,7 @@ const Signup = () => {
   };
 
   return (
-    <div className="auth-container">
+    <div className="auth-container1">
       <div className="auth-box">
         <h2>Sign Up</h2>
         <form onSubmit={handleSubmit}>
@@ -103,6 +122,26 @@ const Signup = () => {
               name="confirmPassword"
               placeholder="Confirm your password"
               value={confirmPassword}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-group">
+            <label>Guardian 1 Email:</label>
+            <input
+              type="email"
+              name="guardian1Email"
+              placeholder="Enter Guardian 1's Email"
+              value={guardian1Email}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-group">
+            <label>Guardian 2 Email:</label>
+            <input
+              type="email"
+              name="guardian2Email"
+              placeholder="Enter Guardian 2's Email"
+              value={guardian2Email}
               onChange={handleChange}
             />
           </div>
