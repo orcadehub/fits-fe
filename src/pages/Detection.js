@@ -82,12 +82,16 @@ const Detection = () => {
       <h1>Seizure Detection Graph</h1>
       <Line data={data} />
       <h2>Recent Values</h2>
-      {detectionHistory.slice(0, 5).map((item, index) => (
-        <p key={index}>
-          EEG: {item.eegValue} | Seizure: {item.seizureDetected ? "Yes" : "No"}{" "}
-          | {new Date(item.timestamp).toLocaleTimeString()}
-        </p>
-      ))}
+      {detectionHistory
+        .slice(-5) // Get the last 5 values
+        .reverse() // Reverse them to show the latest first
+        .map((item, index) => (
+          <p key={index}>
+            EEG: {item.eegValue} | Seizure:{" "}
+            {item.seizureDetected ? "Yes" : "No"} |{" "}
+            {new Date(item.timestamp).toLocaleTimeString()}
+          </p>
+        ))}
     </div>
   );
 };
